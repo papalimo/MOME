@@ -7,7 +7,6 @@ import os
 def main():
     file_path = __file__
     dir_name = os.path.dirname(file_path)
-    # 获取目录名称
     dir_name_only = os.path.basename(dir_name)
     parser=argparse.ArgumentParser()
     parser.add_argument('--batch_size',default=32)
