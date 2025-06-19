@@ -3,7 +3,6 @@ import os
 def DFT(mode):
     file_path = __file__
     dir_name = os.path.dirname(file_path)
-    # 获取目录名称
     dir_name_only = os.path.basename(dir_name)
     path = dir_name_only
     original_data = np.load(path + '_' + mode + '_x.npy')
@@ -11,8 +10,8 @@ def DFT(mode):
     real_part = transformed_data.real
     imaginary_part = transformed_data.imag
     combined_data = np.empty((original_data.shape[0], original_data.shape[1], 2, original_data.shape[2]))
-    combined_data[:, :, 0, :] = real_part  # 实部
-    combined_data[:, :, 1, :] = imaginary_part  # 虚部
+    combined_data[:, :, 0, :] = real_part
+    combined_data[:, :, 1, :] = imaginary_part  
     return combined_data,path
 def main():
     combined_data_train,path=DFT('train')
