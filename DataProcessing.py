@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
-# 假设你的输入数据是这样的格式
+
 
 class CustomDataset(Dataset):
     def __init__(self, time_series, fourier, wavelet, linear, labels):
@@ -32,19 +32,5 @@ class CustomDataset(Dataset):
                 self.linear[idx],
                 self.labels[idx])
 
-# 创建自定义数据集
-def main():
-   print('heelo')
 
-if __name__ == "__main__":
-    main()
 
-# # 测试数据加载器
-# for batch in dataloader:
-#     time_series, fourier, wavelet, linear, label = batch
-#     print("Time Series Shape:", time_series.shape)
-#     print("Fourier Shape:", fourier.shape)
-#     print("Wavelet Shape:", wavelet.shape)
-#     print("Linear Shape:", linear.shape)
-#     print("Labels Shape:", label.shape)
-#     break
