@@ -22,7 +22,7 @@ class SimpleResNetBlock1D(nn.Module):
         out = self.relu(out)
         out = self.conv2(out)
         out = self.bn2(out)
-        out += residual  # 残差连接
+        out += residual 
         out = self.relu(out)
         return out
 
@@ -42,7 +42,7 @@ class SimpleResNetBlock2D(nn.Module):
         out = self.relu(out)
         out = self.conv2(out)
         out = self.bn2(out)
-        out += residual  # 残差连接
+        out += residual  
         out = self.relu(out)
         return out
 
@@ -51,56 +51,50 @@ class MultiInputResNet(nn.Module):
         super(MultiInputResNet, self).__init__()
         self.in_channels=in_channels
         self.num_classes=num_classes
-        # 时间序列输入 (Conv1d)
         self.time_series_conv = nn.Sequential(
             SimpleResNetBlock1D(self.in_channels, 16),
             SimpleResNetBlock1D(16, 32),
             SimpleResNetBlock1D(32, 64),
-            nn.AdaptiveAvgPool1d(1)  # 池化到 1
+            nn.AdaptiveAvgPool1d(1)  
         )
 
-        # 傅里叶变换输入 (Conv2d)
         self.fourier_conv = nn.Sequential(
             SimpleResNetBlock2D(self.in_channels, 16),
             SimpleResNetBlock2D(16, 32),
             SimpleResNetBlock2D(32, 64),
-            nn.AdaptiveAvgPool2d((1, 1))  # 池化到 (1, 1)
+            nn.AdaptiveAvgPool2d((1, 1)) 
         )
 
-        # 小波变换输入 (Conv2d)
         self.wavelet_conv = nn.Sequential(
             SimpleResNetBlock2D(self.in_channels, 16),
             SimpleResNetBlock2D(16, 32),
             SimpleResNetBlock2D(32, 64),
-            nn.AdaptiveAvgPool2d((1, 1))  # 池化到 (1, 1)
+            nn.AdaptiveAvgPool2d((1, 1))  
         )
 
-        # 线性变换输入 (Conv2d)
         self.linear_conv = nn.Sequential(
             SimpleResNetBlock2D(self.in_channels, 16),
             SimpleResNetBlock2D(16, 32),
             SimpleResNetBlock2D(32, 64),
-            nn.AdaptiveAvgPool2d((1, 1))  # 池化到 (1, 1)
-        )
+            nn.AdaptiveAvgPool2d((1, 1)) 
 
-        # 最终的分类层
+
         self.dropout=nn.Dropout(dropout)
-        self.fc = nn.Linear(64 * 4, self.num_classes)  # 32维特征 * 4个输入
+        self.fc = nn.Linear(64 * 4, self.num_classes)  
 
     def forward(self, time_series, fourier, wavelet, linear):
-        # 通过各自的网络提取特征
-        time_series_features = self.time_series_conv(time_series)  # (40, 32, 1)
-        fourier_features = self.fourier_conv(fourier)  # (40, 32, 2, 100)
-        wavelet_features = self.wavelet_conv(wavelet)  # (40, 32, 2, 100)
-        linear_features = self.linear_conv(linear)  # (40, 32, 3, 100)
 
-        # 将特征展平并拼接
+        time_series_features = self.time_series_conv(time_series)  
+        fourier_features = self.fourier_conv(fourier) 
+        wavelet_features = self.wavelet_conv(wavelet)  
+        linear_features = self.linear_conv(linear)  
+
+   
         combined_features = torch.cat((time_series_features.view(time_series_features.size(0), -1),
                                         fourier_features.view(fourier_features.size(0), -1),
                                         wavelet_features.view(wavelet_features.size(0), -1),
                                         linear_features.view(linear_features.size(0), -1)), dim=1)
 
-        # 分类层
         output = self.fc(self.dropout(combined_features))
         return output
 
@@ -264,15 +258,6 @@ class MultiInputResNet(nn.Module):
 
 
 
-# 定义超参数
-def main():
-    time_series=torch.rand(4,6,100)
-    wavelet = torch.rand(4, 6, 2,100)
-    fourier = torch.rand(4, 6, 2,100)
-    linear = torch.rand(4, 6,3, 100)
-    label = torch.rand(4)
-    net=MultiInputResNet(6,10)
-    out=net(time_series,fourier,wavelet,linear)
 
 
 
